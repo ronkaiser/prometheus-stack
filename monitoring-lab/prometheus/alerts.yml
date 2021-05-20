@@ -1,0 +1,37 @@
+groups:
+  - name: critical-alerts
+    rules:
+    - alert: 'Instance Down'
+      expr: up == 0
+      for: 1m
+      labels:
+        severity: critical
+      annotations:
+        summary: "[ {{ $labels.name }} ] is down"
+        description: "[ {{ $labels.name }} ] has been down for more than 1 minute"
+  - name: usage-alerts
+    rules:
+    - alert: 'RAM Usage'
+      expr: 100 - ((node_memory_MemAvailable_bytes * 100) / node_memory_MemTotal_bytes) > 15
+      for: 5m
+      labels:
+        severity: warning
+      annotations:
+        summary: "Server {{ $labels.instance }} reach the RAM memory limit"
+        description: "Server {{ $labels.instance }} has been using more than 85% of his memory RAM in the last 5 minutes"
+    - alert: 'Disk Usage'
+      expr: max(((node_filesystem_size_bytes{fstype=~"ext4|vfat"} - node_filesystem_free_bytes{fstype=~"ext4|vfat"}) / node_filesystem_size_bytes{fstype=~"ext4|vfat"}) * 100) by (name) > 20
+      for: 5m
+      labels:
+        severity: warning
+      annotations:
+        summary: "Server {{ $labels.instance }} reach the disk usage limit"
+        description: "Server {{ $labels.instance }} has been using more than 85% of his disk space in the last 5 minutes"
+    - alert: 'CPU Usage'
+      expr: (1 - avg(irate(node_cpu_seconds_total{mode="idle"}[10m])) by (name)) * 100 > 5
+      for: 5m
+      labels:
+        severity: warning
+      annotations:
+        summary: "Server {{ $labels.instance }} reach the cpu usage limit"
+        description: "Server {{ $labels.instance }} has been using more than 85% of his cpu in the last 5 minutes"

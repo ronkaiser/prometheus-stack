@@ -1,0 +1,3 @@
+- targets: ['customexporter:5000']
+  labels:
+    name: 'My Exporter'
